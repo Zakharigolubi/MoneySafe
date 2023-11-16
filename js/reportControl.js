@@ -1,18 +1,23 @@
 import { OverlayScrollbars } from './overlayscrollbars.esm.min.js'
-import { getData } from './service.js'
+import { delData, getData } from './service.js'
 import { reformatDate } from './helpers.js'
 import { storage } from './storage.js'
+import { financeControl } from './financeControl.js'
+import { clearChart, generateChart } from './generateChart.js'
 
 const typesOperation = {
   income: 'доход',
   expenses: 'расход'
 }
 
+let actualData = []
+
 const report = document.querySelector('.report')
 const financeReportBtn = document.querySelector('.finance__report')
 const reportTable = document.querySelector('.report__table')
 const reportOperationList = document.querySelector('.report__operation-list')
 const reportDates = document.querySelector('.report__dates')
+const generateChartButton = document.querySelector('#generateChartButton')
 
 OverlayScrollbars(report, {})
 
@@ -63,7 +68,7 @@ const renderReport = (data) => {
       <td class="report__cell">${reformatDate(date)}</td>
       <td class="report__cell">${typesOperation[type]}</td>
       <td class="report__action-cell">
-        <button class="report__button report__button_table" data-del=${id}>
+        <button class="report__button report__button_table" data-id=${id}>
           &#10006;
         </button>
       </td>
@@ -76,8 +81,9 @@ const renderReport = (data) => {
 }
 
 export const reportControl = () => {
-  reportTable.addEventListener('click', ({ target }) => {
+  reportTable.addEventListener('click', async ({ target }) => {
     const targetSort = target.closest('[data-sort]')
+    const reportBtnDel = target.closest('.report__button_table')
 
     if (targetSort) {
       const sortField = targetSort.dataset.sort
@@ -99,9 +105,15 @@ export const reportControl = () => {
         targetSort.dataset.dir = 'up'
       }
     }
-    const targetDel = target.closest('[data-del]')
-    if (targetDel) {
-      console.log(targetDel.dataset.del)
+
+    if (reportBtnDel) {
+      await delData(`/finance/${reportBtnDel.dataset.id}`)
+
+      const reportRow = reportBtnDel.closest('.report__row')
+
+      reportRow.remove()
+      financeControl()
+      clearChart()
     }
   })
 
@@ -110,13 +122,13 @@ export const reportControl = () => {
     financeReportBtn.textContent = 'Загрузка...'
     financeReportBtn.disabled = true
 
-    const data = await getData('/finance')
-    storage.data = data
+    actualData = await getData('/finance')
+    storage.actualData = actualData
 
     financeReportBtn.textContent = textContent
     financeReportBtn.disabled = false
 
-    renderReport(data)
+    renderReport(actualData)
     openReport()
   })
 
@@ -138,7 +150,12 @@ export const reportControl = () => {
 
     const url = queryString ? `/finance?${queryString}` : '/finance'
 
-    const data = await getData(url)
-    renderReport(data)
+    actualData = await getData(url)
+    renderReport(actualData)
+    clearChart()
   })
 }
+
+generateChartButton.addEventListener('click', () => {
+  generateChart(actualData)
+})

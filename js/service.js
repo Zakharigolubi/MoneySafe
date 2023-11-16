@@ -30,3 +30,19 @@ export const postData = async (url, data) => {
     throw error
   }
 }
+
+export const delData = async (url) => {
+  try {
+    const response = await fetch(`${API_URL}${url}`, {
+      method: 'DELETE'
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    return await response.json()
+  } catch (error) {
+    console.error('Ошибка при удалении данных: ', error)
+    throw error
+  }
+}
