@@ -26,7 +26,7 @@ const addNewOperation = async (e) => {
     amount -= changeAmount
   }
 
-  financeAmount.textContent = `${amount.toLocaleString()} ₽`
+  animationNumber(financeAmount, amount)
   financeForm.reset()
 }
 

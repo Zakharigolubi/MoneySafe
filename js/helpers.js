@@ -26,16 +26,16 @@ export const animationNumber = (element, number) => {
 
   const increment = Math.trunc((number - initialNumber) / totalFrame)
 
-  const intervalId = setInterval(() => {
+  const animate = () => {
     currentFrame++
-
     const newNumber = initialNumber + increment * currentFrame
+    element.textContent = `${newNumber.toLocaleString('RU-ru')} ₽`
 
-    element.textContent = `${newNumber.toLocaleString()} ₽`
-
-    if (currentFrame === totalFrame) {
-      clearInterval(intervalId)
-      element.textContent = `${number.toLocaleString()} ₽`
+    if (currentFrame < totalFrame) {
+      requestAnimationFrame(animate)
+    } else {
+      element.textContent = `${number.toLocaleString('RU-ru')} ₽`
     }
-  }, frameDuration)
+  }
+  requestAnimationFrame(animate)
 }
