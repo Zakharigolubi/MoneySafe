@@ -83,6 +83,7 @@ const renderReport = (data) => {
 export const reportControl = () => {
   reportTable.addEventListener('click', async ({ target }) => {
     const targetSort = target.closest('[data-sort]')
+    console.log(targetSort)
     const reportBtnDel = target.closest('.report__button_table')
 
     if (targetSort) {

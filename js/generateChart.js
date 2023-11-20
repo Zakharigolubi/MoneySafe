@@ -13,22 +13,21 @@ export const generateChart = (data) => {
   const chartLabel = [...new Set(data.map((item) => item.date))]
 
   const reduceOperationOnDate = (arrDate) =>
-    chartLabel.reduce(
-      (acc, date) => {
-        const total = arrDate
-          .filter((item) => item.date === date)
-          .reduce((acc, record) => acc + parseFloat(record.amount), 0)
+    chartLabel.reduce((acc, date, i) => {
+      const total = arrDate
+        .filter((item) => item.date === date)
+        .reduce((acc, record) => acc + parseFloat(record.amount), 0)
+      if (i) {
+        acc.push(acc[acc.length - 1] + total)
+      } else {
+        acc.push(total)
+      }
+      return acc
+    }, [])
 
-        acc[0] += total
-        acc[1].push(acc[0])
-        return [acc[0], acc[1]]
-      },
-      [0, []]
-    )
+  const incomeAmounts = reduceOperationOnDate(incomeData)
 
-  const [accIncome, incomeAmounts] = reduceOperationOnDate(incomeData)
-
-  const [accExpenses, expensesAmounts] = reduceOperationOnDate(expensesData)
+  const expensesAmounts = reduceOperationOnDate(expensesData)
 
   const balanceAmounts = incomeAmounts.map(
     (income, index) => income - expensesAmounts[index]
