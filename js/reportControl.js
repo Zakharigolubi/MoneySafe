@@ -10,8 +10,6 @@ const typesOperation = {
   expenses: 'расход'
 }
 
-let actualData = []
-
 const report = document.querySelector('.report')
 const financeReportBtn = document.querySelector('.finance__report')
 const reportTable = document.querySelector('.report__table')
@@ -83,15 +81,17 @@ const renderReport = (data) => {
 export const reportControl = () => {
   reportTable.addEventListener('click', async ({ target }) => {
     const targetSort = target.closest('[data-sort]')
-    console.log(targetSort)
+
     const reportBtnDel = target.closest('.report__button_table')
 
     if (targetSort) {
       const sortField = targetSort.dataset.sort
+
       renderReport(
-        [...storage.data].sort((a, b) => {
+        [...storage.actualData].sort((a, b) => {
           if (targetSort.dataset.dir === 'up') {
-            ;[a, b] = [b, a]
+            // prettier-ignore
+            [a, b] = [b, a]
           }
 
           if (sortField === 'amount') {
@@ -123,13 +123,12 @@ export const reportControl = () => {
     financeReportBtn.textContent = 'Загрузка...'
     financeReportBtn.disabled = true
 
-    actualData = await getData('/finance')
-    storage.actualData = actualData
+    storage.actualData = await getData('/finance')
 
     financeReportBtn.textContent = textContent
     financeReportBtn.disabled = false
 
-    renderReport(actualData)
+    renderReport(storage.actualData)
     openReport()
   })
 
@@ -151,12 +150,13 @@ export const reportControl = () => {
 
     const url = queryString ? `/finance?${queryString}` : '/finance'
 
-    actualData = await getData(url)
-    renderReport(actualData)
+    storage.actualData = await getData(url)
+
+    renderReport(storage.actualData)
     clearChart()
   })
 }
 
 generateChartButton.addEventListener('click', () => {
-  generateChart(actualData)
+  generateChart(storage.actualData)
 })
